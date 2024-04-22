@@ -56,24 +56,36 @@ const TextRecognition = ({ selectedImage }) => {
 	};
 
 	return (
-		<div>
-			<h2>Recognized Text:</h2>
-			<p>{recognizedText}</p>
-			<button
-				disabled={isSaving}
-				onClick={handleSave}
-				className={`px-4 py-2 text-white ${isSaving ? 'bg-gray-300' : 'bg-blue-600 hover:bg-blue-700'}`}
-			>
-				{isSaving ? 'Saving...' : 'Save'}
-			</button>
-			<div>
-				<h3>Saved Texts:</h3>
+		<div className="space-y-6">
+			{/* Recognized Text Container */}
+			<div className="p-4 border-2 border-gray-200 rounded-md">
+				<h2 className="text-lg font-semibold mb-2 text-center">Recognized Text:</h2>
+				<p className="whitespace-pre-wrap text-center">{recognizedText}</p>
+			</div>
+
+			{/* Save Button */}
+			<div className="flex justify-center">
+				<button
+					disabled={isSaving}
+					onClick={handleSave}
+					className={`px-4 py-2 text-white ${isSaving ? 'bg-gray-300' : 'bg-blue-600 hover:bg-blue-700'} rounded-md transition-colors duration-200 ease-in-out`}
+				>
+					{isSaving ? 'Saving...' : 'Save'}
+				</button>
+			</div>
+
+			{/* Saved Texts Container */}
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 				{savedTexts.map((text, index) => (
-					<p key={index}>{text}</p>
+					<div key={index} className="bg-white p-4 rounded-lg border-2 mb-4 mx-auto">
+						<p className="text-gray-600">{text}</p>
+					</div>
 				))}
 			</div>
 		</div>
+
 	);
+
 };
 
 export default TextRecognition;

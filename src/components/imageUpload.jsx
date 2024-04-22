@@ -7,11 +7,28 @@ const ImageUploader = () => {
 		setSelectedImage(URL.createObjectURL(image));
 	};
 	return (
-		<div>
-			<input type="file" accept="image/*" onChange={handleImageUpload} />
-			{selectedImage && <img src={selectedImage} alt="Selected" />}
+		<>
+			<div className="container mx-auto my-12 p-8 max-w-md bg-white rounded-lg shadow-2xl">
+				<label className="block text-gray-700 text-sm font-bold mb-2">Choose an Image:</label>
+				<input
+					type="file"
+					accept="image/*"
+					onChange={handleImageUpload}
+				/>
+				{selectedImage && (
+					<div className="mt-4">
+						<img
+							src={selectedImage}
+							alt="Selected"
+							className="mx-auto rounded-lg shadow-lg"
+							style={{ maxWidth: '300px' }} // Limiting the maximum width
+						/>
+					</div>
+				)}
+			</div>
 			<TextRecognition selectedImage={selectedImage} />
-		</div>
+		</>
+
 	);
 };
 export default ImageUploader;
