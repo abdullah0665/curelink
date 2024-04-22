@@ -6,12 +6,16 @@ import './index.css'
 import MapExample from './components/map'
 import OCR from './components/OCR'
 import ImageUploader from './components/imageUpload'
+import Login from './components/login'
+import Signup from './components/signp'
 
 function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={< Home />} />
+        <Route path="/" element={< Login />} />
+        <Route path="/signup" element={< Signup />} />
+        <Route path="/home" element={< Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/map" element={<MapExample />} />
         <Route path="/ocr" element={<ImageUploader />} />
