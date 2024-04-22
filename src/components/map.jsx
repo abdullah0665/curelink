@@ -45,7 +45,7 @@ const MapExample = () => {
 							<li
 								key={loc.id}
 								onClick={() => handleLocationSelect(loc)}
-								className="cursor-pointer bg-[#291f82] hover:bg-[#0b0638] text-white py-2 px-4 rounded w-full text-center"
+								className="cursor-pointer bg-[#291f82] hover:bg-[#0b0638] text-white py-5 px-4 rounded-xl w-full text-center"
 							>
 								{loc.name} - Lat: {loc.lat}, Long: {loc.long}
 							</li>
