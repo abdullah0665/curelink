@@ -41,20 +41,22 @@ const Home = () => {
 					<HomeCard
 						imageSrc="/vite.svg"
 						altText="Consultation"
-						title="Consultation"
+						title="Consult"
 						to={"/about"}
 					/>
 					<HomeCard
 						imageSrc="/vite.svg"
 						altText="Locate Laboratory"
 						title="Locate Laboratory"
-						to={"/map"}
+						// to={"/map"}
+						to={"/about"}
 					/>
 					<HomeCard
 						imageSrc="/vite.svg"
 						altText="Upload Document"
 						title="Upload Document"
-						to={"/ocr"}
+						// to={"/ocr"}
+						to={"/about"}
 					/>
 				</div>
 			</div>
