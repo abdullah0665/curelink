@@ -7,7 +7,7 @@ import MapExample from './components/map'
 import OCR from './components/OCR'
 import ImageUploader from './components/imageUpload'
 import Login from './components/login'
-import Signup from './components/signp'
+import Signup from './components/signup'
 
 function App() {
   return (

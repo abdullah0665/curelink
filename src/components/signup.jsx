@@ -102,7 +102,7 @@ const Signup = () => {
 					<button
 						type="submit"
 						disabled={isLoading}
-						className={`w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors duration-150 ${isLoading && 'opacity-50 cursor-not-allowed'}`}
+						className={`w-full bg-[#291f82] hover:bg-[#0b0638] text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors duration-150 ${isLoading && 'opacity-50 cursor-not-allowed'}`}
 					>
 						{isLoading ? 'Registering...' : 'Register'}
 					</button>

@@ -42,9 +42,9 @@ const Login = () => {
 	};
 
 	return (
-		<div className="container mx-auto my-12 p-8 max-w-md bg-white rounded-lg shadow-xl">
-			<h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Login Here</h2>
-			<form autoComplete="off" className="space-y-4" onSubmit={handleLogin}>
+		<div className="container mx-auto my-12 p-8 max-w-md bg-white rounded-lg shadow-2xl">
+			<h2 className="text-3xl font-bold mb-6 text-center text-gray-900">Welcome</h2>
+			<form autoComplete="off" className="space-y-6" onSubmit={handleLogin}>
 				<div>
 					<label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
 					<input
@@ -70,7 +70,7 @@ const Login = () => {
 				<div className="flex items-center justify-center">
 					<button
 						type="submit"
-						className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors duration-150"
+						className="w-full bg-[#291f82] hover:bg-[#0b0638] text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors duration-150"
 					>
 						Login
 					</button>
@@ -82,10 +82,11 @@ const Login = () => {
 			<p className="mt-4 text-center">
 				Don't have an account?{' '}
 				<Link to="/signup" className="text-blue-500 hover:text-blue-700">
-					Register here
+					Sign Up
 				</Link>
 			</p>
 		</div>
+
 	);
 
 };
