@@ -23,7 +23,7 @@ const Home = () => {
 					imageSrc="/vite.svg"
 					altText="Upload Document"
 					title="Upload Document"
-					to={"/about"}
+					to={"/ocr"}
 				/>
 			</div>
 		</div>

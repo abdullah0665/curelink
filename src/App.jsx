@@ -4,6 +4,8 @@ import Home from "./components/home"
 import About from "./components/about"
 import './index.css'
 import MapExample from './components/map'
+import OCR from './components/OCR'
+import ImageUploader from './components/imageUpload'
 
 function App() {
   return (
@@ -12,6 +14,7 @@ function App() {
         <Route path="/" element={< Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/map" element={<MapExample />} />
+        <Route path="/ocr" element={<ImageUploader />} />
       </Routes>
     </>
   )
