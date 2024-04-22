@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import Tesseract from 'tesseract.js';
-import { db, auth } from '../firebase'; // Adjust the import path as needed
-import { doc, setDoc } from "firebase/firestore"; // Import the needed Firestore functions
+import { db, auth } from '../firebase';
+import { doc, setDoc, getDocs, collection, query, where } from "firebase/firestore";
 
 const TextRecognition = ({ selectedImage }) => {
 	const [recognizedText, setRecognizedText] = useState('');
-	const [isSaving, setIsSaving] = useState(false); // State to handle save button status
+	const [savedTexts, setSavedTexts] = useState([]);
+	const [isSaving, setIsSaving] = useState(false);
 
 	useEffect(() => {
 		const recognizeText = async () => {
@@ -21,14 +22,31 @@ const TextRecognition = ({ selectedImage }) => {
 		recognizeText();
 	}, [selectedImage]);
 
+	useEffect(() => {
+		const fetchSavedTexts = async () => {
+			if (auth.currentUser) {
+				try {
+					const q = query(collection(db, 'doc'), where("userID", "==", auth.currentUser.uid));
+					const querySnapshot = await getDocs(q);
+					const texts = querySnapshot.docs.map(doc => doc.data().text);
+					setSavedTexts(texts);
+				} catch (error) {
+					console.error('Error fetching documents: ', error);
+				}
+			}
+		};
+		fetchSavedTexts();
+	}, [auth.currentUser.uid]);
+	console.log(savedTexts)
+
 	const handleSave = async () => {
-		// Ensure we have user information and recognized text before saving
 		if (auth.currentUser && recognizedText) {
 			try {
 				setIsSaving(true);
-				const userDocRef = doc(db, 'doc', auth.currentUser.uid);
+				const userDocRef = doc(collection(db, 'doc'));
 				await setDoc(userDocRef, { text: recognizedText, userID: auth.currentUser.uid }, { merge: true });
 				console.log('Document saved successfully');
+				setSavedTexts([...savedTexts, recognizedText]); // Optionally update local state without refetching
 			} catch (error) {
 				console.error('Error saving document: ', error);
 			} finally {
@@ -48,6 +66,12 @@ const TextRecognition = ({ selectedImage }) => {
 			>
 				{isSaving ? 'Saving...' : 'Save'}
 			</button>
+			<div>
+				<h3>Saved Texts:</h3>
+				{savedTexts.map((text, index) => (
+					<p key={index}>{text}</p>
+				))}
+			</div>
 		</div>
 	);
 };
