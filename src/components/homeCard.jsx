@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const HomeCard = ({ imageSrc, altText, title, to }) => {
-	const isCounselation = title === "Counsultation";
+	const isCounselation = title === "Consultation";
 
 	return (
 		<div className={`w-full mb-4 relative overflow-hidden rounded-lg sm:w-1/3 lg:w-1/4 xl:w-1/5 ${isCounselation ? 'bg-gray-400 text-black' : 'bg-[#291f82] hover:bg-[#0b0638] transition-all duration-300 hover:scale-110'}`}>

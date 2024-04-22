@@ -82,7 +82,7 @@ const MapExample = () => {
 			)}
 
 			<button
-				onClick={() => navigate('/')}
+				onClick={() => navigate('/home')}
 				className="bg-[#291f82] hover:bg-[#0b0638] text-white font-bold py-2 px-4 rounded mt-4"
 			>
 				Return To Home
