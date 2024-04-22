@@ -17,7 +17,7 @@ const Home = () => {
 					imageSrc="/vite.svg"
 					altText="Locate labortry"
 					title="Locate labortry"
-					to={"/about"}
+					to={"/map"}
 				/>
 				<HomeCard
 					imageSrc="/vite.svg"
