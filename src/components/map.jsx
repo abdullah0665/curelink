@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet'
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useNavigate } from 'react-router-dom';
+// import { toast } from 'react-toastify';
 
 const MapExample = () => {
 	const [locations, setLocations] = useState([
@@ -33,38 +34,62 @@ const MapExample = () => {
 	};
 
 	return (
-		<div className="flex flex-col lg:flex-row rounded-lg items-center justify-center" style={{ height: '100vh' }}>
-			<div className="flex-grow transition-all duration-300 ease-in-out">
-				<ul className="list-none">
-					{locations.map(loc => (
-						<li key={loc.id} onClick={() => handleLocationSelect(loc)}>
-							{loc.name}
-						</li>
-					))}
-				</ul>
-				{selectedLocation && currentLocation && (
-					<div className="map-container" style={{ height: '500px', width: '800px', margin: '0 auto', border: '2px solid #000' }}>
-						<MapContainer center={[currentLocation.lat, currentLocation.long]} zoom={13} style={{ height: '100%', width: '100%' }}>
-							<TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-							<Marker position={[currentLocation.lat, currentLocation.long]}>
-								<Popup>Your Location</Popup>
-							</Marker>
-							<Marker position={[selectedLocation.lat, selectedLocation.long]}>
-								<Popup>{selectedLocation.name}</Popup>
-							</Marker>
-							<Polyline positions={[[currentLocation.lat, currentLocation.long], [selectedLocation.lat, selectedLocation.long]]} color="red" />
-						</MapContainer>
-					</div>
+		<div className="flex flex-col items-center  w-full h-screen">
+			<div className="w-11/12 max-w-screen-xl">
+				{selectedLocation ? (
+					// If a location is selected, don't render the list
+					null
+				) : (
+					<ul className="list-none space-y-2 mt-4">
+						{locations.map((loc) => (
+							<li
+								key={loc.id}
+								onClick={() => handleLocationSelect(loc)}
+								className="cursor-pointer bg-[#291f82] hover:bg-[#0b0638] text-white py-2 px-4 rounded w-full text-center"
+							>
+								{loc.name} - Lat: {loc.lat}, Long: {loc.long}
+							</li>
+						))}
+					</ul>
 				)}
-				<button onClick={resetSelection} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-					Reset Selection
-				</button>
-				<button onClick={() => navigate('/')} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-					Return To Home
-				</button>
 			</div>
+			{selectedLocation && currentLocation && (
+				<div
+					className="map-container mt-4 w-11/12 max-w-screen-xl"
+					style={{ height: '500px', border: '2px solid #000' }}
+				>
+					<MapContainer
+						center={[currentLocation.lat, currentLocation.long]}
+						zoom={13}
+						style={{ height: '100%', width: '100%' }}
+					>
+						<TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+						<Marker position={[currentLocation.lat, currentLocation.long]}>
+							<Popup>Your Location</Popup>
+						</Marker>
+						<Marker position={[selectedLocation.lat, selectedLocation.long]}>
+							<Popup>{selectedLocation.name}</Popup>
+						</Marker>
+						<Polyline
+							positions={[
+								[currentLocation.lat, currentLocation.long],
+								[selectedLocation.lat, selectedLocation.long],
+							]}
+							color="red"
+						/>
+					</MapContainer>
+				</div>
+			)}
+
+			<button
+				onClick={() => navigate('/')}
+				className="bg-[#291f82] hover:bg-[#0b0638] text-white font-bold py-2 px-4 rounded mt-4"
+			>
+				Return To Home
+			</button>
 		</div>
 	);
+
 };
 
 export default MapExample;
