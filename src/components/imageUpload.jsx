@@ -8,7 +8,7 @@ const ImageUploader = () => {
 		const image = event.target.files[0];
 		setSelectedImage(URL.createObjectURL(image));
 	};
-	return (
+	return ( 
 		<>
 			<div className="container mx-auto my-12 p-8 max-w-md bg-white rounded-lg shadow-2xl">
 				{/* Back Button */}
