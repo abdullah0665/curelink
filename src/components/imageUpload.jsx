@@ -1,123 +1,156 @@
-import { collection, doc, getDocs, query, setDoc, where } from "firebase/firestore";
+
+
+// src/components/FileUpload.js
+import { faFilePdf } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { addDoc, collection, getDocs, query, serverTimestamp, where } from 'firebase/firestore';
+import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import React, { useEffect, useState } from 'react';
-import Tesseract from 'tesseract.js';
-import { auth, db } from '../firebase';
+import { db, storage } from "../firebase";
 import NavBar from './topNav';
-const ImageUploader = () => {
-	const [selectedImage, setSelectedImage] = useState(null);
-	const handleImageUpload = (event) => {
-		const image = event.target.files[0];
-		setSelectedImage(URL.createObjectURL(image));
-	};
-	const [recognizedText, setRecognizedText] = useState('');
-	const [savedTexts, setSavedTexts] = useState([]);
-	const [isSaving, setIsSaving] = useState(false);
+import NewOCR from './newOcr';
+
+const FileUpload = () => {
+	const [file, setFile] = useState(null);
+	const [progress, setProgress] = useState(0);
+	const [message, setMessage] = useState('');
+	const [uploadedFiles, setUploadedFiles] = useState([]);
+	const [currentUser, setCurrentUser] = useState(null);
 
 	useEffect(() => {
-		const recognizeText = async () => {
-			if (selectedImage) {
-				try {
-					const result = await Tesseract.recognize(selectedImage, 'eng');
-					setRecognizedText(result.data.text);
-				} catch (error) {
-					console.error('Error recognizing text: ', error);
-				}
+		const auth = getAuth();
+		onAuthStateChanged(auth, (user) => {
+			if (user) {
+				setCurrentUser(user);
+				fetchUploadedFiles(user.uid);
+			} else {
+				setCurrentUser(null);
 			}
-		};
-		recognizeText();
-	}, [selectedImage]);
+		});
+	}, []);
 
-	useEffect(() => {
-		const fetchSavedTexts = async () => {
-			if (auth.currentUser) {
-				try {
-					const q = query(collection(db, 'doc'), where("userID", "==", auth.currentUser.uid));
-					const querySnapshot = await getDocs(q);
-					const texts = querySnapshot.docs.map(doc => doc.data().text);
-					setSavedTexts(texts);
-				} catch (error) {
-					console.error('Error fetching documents: ', error);
-				}
-			}
-		};
-		fetchSavedTexts();
-	}, [auth.currentUser.uid]);
-	console.log(savedTexts)
-
-	const handleSave = async () => {
-		if (auth.currentUser && recognizedText) {
-			try {
-				setIsSaving(true);
-				const userDocRef = doc(collection(db, 'doc'));
-				await setDoc(userDocRef, { text: recognizedText, userID: auth.currentUser.uid }, { merge: true });
-				console.log('Document saved successfully');
-				setSavedTexts([...savedTexts, recognizedText]); // Optionally update local state without refetching
-			} catch (error) {
-				console.error('Error saving document: ', error);
-			} finally {
-				setIsSaving(false);
-			}
+	const handleFileChange = (e) => {
+		const selectedFile = e.target.files[0];
+		if (selectedFile && selectedFile.type === 'application/pdf') {
+			setFile(selectedFile);
+		} else {
+			alert('Please select a PDF file');
 		}
 	};
 
+	const uploadFile = (file) => {
+		if (!file) return null;
+		const fileRef = ref(storage, `files/${file.name}`);
+		const uploadTask = uploadBytesResumable(fileRef, file);
+
+		return new Promise((resolve, reject) => {
+			uploadTask.on(
+				'state_changed',
+				(snapshot) => {
+					const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+					setProgress(progress);
+				},
+				(error) => {
+					console.log(error);
+					reject(error);
+				},
+				() => {
+					getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+						resolve(downloadURL);
+					});
+				}
+			);
+		});
+	};
+
+	const sendMessage = async () => {
+		if (!file) {
+			alert('No file selected');
+			return;
+		}
+
+		if (!currentUser) {
+			alert('User not logged in');
+			return;
+		}
+
+		try {
+			const fileUrl = await uploadFile(file);
+			const { email, uid } = currentUser;
+
+			await addDoc(collection(db, 'messages'), {
+				text: message,
+				name: file.name,
+				fileUrl,
+				createdAt: serverTimestamp(),
+				uid,
+			});
+
+			setFile(null);
+			setMessage('');
+			setProgress(0);
+			fetchUploadedFiles(uid);
+		} catch (error) {
+			console.log('Error uploading file:', error);
+		}
+	};
+
+	const fetchUploadedFiles = async (uid) => {
+		const q = query(collection(db, 'messages'), where('uid', '==', uid));
+		const querySnapshot = await getDocs(q);
+		const files = querySnapshot.docs.map((doc) => doc.data());
+		setUploadedFiles(files);
+	};
+
 	return (
-		<div className="bg-gray-100 h-screen overflow-hidden">
-			<div className='bg-gray-100 '>
-				<NavBar />
-				<div className="container mx-auto p-8 max-w-md bg-gray-100 rounded-lg text-[#291f82] mt-16">
-					{/* Choose Image Section */}
-					<label className="block text-gray-700 text-sm font-bold bg-gray-100 mb-2">Choose an Image:</label>
+		<div className="bg-gray-100 h-screen" >
+			<NavBar/>
+
+			<div className="flex flex-col items-center p-4 mt-16">
+				<div className="w-full max-w-md p-4 border rounded-lg shadow-md">
 					<input
 						type="file"
-						accept="image/*"
-						onChange={handleImageUpload}
-						className="appearance-none border border-gray-300 rounded py-2 px-4 block w-full leading-normal focus:outline-none focus:border-blue-500"
+						accept="application/pdf"
+						onChange={handleFileChange}
+						className="block w-full text-sm text-gray-500
+						file:mr-4 file:py-2 file:px-4
+						file:rounded-full file:border-0
+						file:text-sm file:font-semibold
+						file:bg-blue-50 file:text-blue-700
+						hover:file:bg-blue-100"
 					/>
-
-					{selectedImage && (
-						<div className="mt-4">
-							<img
-								src={selectedImage}
-								alt="Selected"
-								className="mx-auto bg-gray-100 rounded-lg shadow-lg"
-								style={{ maxWidth: '300px' }} // Limiting the maximum width
-							/>
-						</div>
-					)}
-				</div>
-				{/* <TextRecognition selectedImage={selectedImage} /> */}
-			</div>
-			<div className="space-y-6 bg-gray-100">
-				{/* Recognized Text Container */}
-				<div className="p-4 border-2 border-gray-200 rounded-md">
-					<h2 className="text-lg font-semibold mb-2 text-center">Recognized Text:</h2>
-					<p className="whitespace-pre-wrap text-center">{recognizedText}</p>
-				</div>
-
-				{/* Save Button */}
-				<div className="flex justify-center bg-gray-100">
 					<button
-						disabled={isSaving}
-						onClick={handleSave}
-						className={`px-4 py-2 text-white ${isSaving ? 'bg-gray-300' : 'bg-blue-600 hover:bg-blue-700'} rounded-md transition-colors duration-200 ease-in-out`}
+						onClick={sendMessage}
+						className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700"
 					>
-						{isSaving ? 'Saving...' : 'Save'}
+						Upload PDF
 					</button>
+					<p className="mt-2 text-gray-700">Upload Progress: {progress}%</p>
 				</div>
-
-				{/* Saved Texts Container */}
-				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-					{savedTexts.map((text, index) => (
-						<div key={index} className="bg-gray-100 p-4 rounded-lg border-2 mb-4 mx-auto">
-							<p className="text-gray-600">{text}</p>
-						</div>
-					))}
+				<div className="w-full max-w-md mt-6">
+					<h3 className="text-xl font-semibold mb-4">Uploaded Files:</h3>
+					<ul className="list-disc list-inside">
+						{uploadedFiles.map((file, index) => (
+							<li key={index} className="flex items-center mb-2">
+								<FontAwesomeIcon icon={faFilePdf} className="text-red-500 mr-2" />
+								<a
+									href={file.fileUrl}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="text-blue-500 hover:underline"
+								>
+									{file.name}
+								</a>
+							</li>
+						))}
+					</ul>
 				</div>
-				<div className="bg-gray-100 h-full"></div>
 			</div>
-		</div>
-
-
+			<NewOCR/>
+		</div >
 	);
 };
-export default ImageUploader;
+
+export default FileUpload;
+
