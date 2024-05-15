@@ -56,7 +56,7 @@ const TextRecognition = ({ selectedImage }) => {
 	};
 
 	return (
-		<div className="space-y-6">
+		<div className="space-y-6 bg-gray-100">
 			{/* Recognized Text Container */}
 			<div className="p-4 border-2 border-gray-200 rounded-md">
 				<h2 className="text-lg font-semibold mb-2 text-center">Recognized Text:</h2>
@@ -77,7 +77,7 @@ const TextRecognition = ({ selectedImage }) => {
 			{/* Saved Texts Container */}
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 				{savedTexts.map((text, index) => (
-					<div key={index} className="bg-white p-4 rounded-lg border-2 mb-4 mx-auto">
+					<div key={index} className="bg-gray-100 p-4 rounded-lg border-2 mb-4 mx-auto">
 						<p className="text-gray-600">{text}</p>
 					</div>
 				))}

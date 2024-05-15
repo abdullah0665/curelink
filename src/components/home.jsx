@@ -24,7 +24,7 @@ const Home = () => {
 		auth.signOut().then(() => navigate('/'));
 	};
 	return (
-		<>
+		<div className='bg-green-100'>
 		<NavBar/>
 			<div className="fixed top-0 right-0 m-4">
 				{user && (
@@ -62,7 +62,7 @@ const Home = () => {
 					/>
 				</div>
 			</div>
-		</>
+		</div>
 	);
 };
 

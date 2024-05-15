@@ -62,11 +62,11 @@ const ImageUploader = () => {
 
 	return (
 		<>
-			<div className='bg-grey-100'>
+			<div className='bg-gray-100'>
 				<NavBar />
-				<div className="container mx-auto my-12 p-8 max-w-md bg-white rounded-lg shadow-2xl mt-20">
+				<div className="container mx-auto my-12 p-8 max-w-md bg-gray-100 rounded-lg shadow-2xl mt-16">
 					{/* Choose Image Section */}
-					<label className="block text-gray-700 text-sm font-bold mb-2">Choose an Image:</label>
+					<label className="block text-gray-700 text-sm font-bold bg-gray-100 mb-2">Choose an Image:</label>
 					<input
 						type="file"
 						accept="image/*"
@@ -77,7 +77,7 @@ const ImageUploader = () => {
 							<img
 								src={selectedImage}
 								alt="Selected"
-								className="mx-auto rounded-lg shadow-lg"
+								className="mx-auto bg-gray-100 rounded-lg shadow-lg"
 								style={{ maxWidth: '300px' }} // Limiting the maximum width
 							/>
 						</div>
@@ -85,7 +85,7 @@ const ImageUploader = () => {
 				</div>
 				{/* <TextRecognition selectedImage={selectedImage} /> */}
 			</div>
-			<div className="space-y-6">
+			<div className="space-y-6 bg-gray-100">
 				{/* Recognized Text Container */}
 				<div className="p-4 border-2 border-gray-200 rounded-md">
 					<h2 className="text-lg font-semibold mb-2 text-center">Recognized Text:</h2>
@@ -93,7 +93,7 @@ const ImageUploader = () => {
 				</div>
 
 				{/* Save Button */}
-				<div className="flex justify-center">
+				<div className="flex justify-center bg-gray-100">
 					<button
 						disabled={isSaving}
 						onClick={handleSave}
@@ -106,7 +106,7 @@ const ImageUploader = () => {
 				{/* Saved Texts Container */}
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 					{savedTexts.map((text, index) => (
-						<div key={index} className="bg-white p-4 rounded-lg border-2 mb-4 mx-auto">
+						<div key={index} className="bg-gray-100 p-4 rounded-lg border-2 mb-4 mx-auto">
 							<p className="text-gray-600">{text}</p>
 						</div>
 					))}
