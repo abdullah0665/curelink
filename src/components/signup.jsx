@@ -13,9 +13,21 @@ const Signup = () => {
 	const [registrationError, setRegistrationError] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 	const [showPassword, setShowPassword] = useState(false);
+	const [nameError, setNameError] = useState('');
 
 	const handleInputChange = (e) => {
 		const { name, value } = e.target;
+
+		if (name === 'fullName') {
+			const isValid = /^[a-zA-Z\s]*$/.test(value);
+			if (!isValid) {
+				setNameError('Full name should only contain letters and spaces.');
+				return;
+			} else {
+				setNameError('');
+			}
+		}
+
 		setFormData((prevData) => ({ ...prevData, [name]: value }));
 	};
 
@@ -72,6 +84,7 @@ const Signup = () => {
 						required
 						className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
 					/>
+					{nameError && <p className="text-red-500 text-xs italic mt-2">{nameError}</p>}
 				</div>
 
 				<div className="mb-4">
