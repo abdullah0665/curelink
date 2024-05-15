@@ -3,6 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { auth, signInWithGoogle } from '../firebase'; // Adjust the import path as needed
 import HomeCard from './HomeCard';
 import NavBar from './topNav';
+import uploaldPng from '../components/upload.png'
+import mapPng from '../components/map.png'
+import docPng from '../components/doc.png'
+
 
 const Home = () => {
 	const [user, setUser] = useState(null);
@@ -37,24 +41,24 @@ const Home = () => {
 				)}
 			</div>
 			<div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-				<img src="/vite.svg" alt="Logo" className="mb-8" /> {/* Logo at the center */}
+				<img src="/logo.png" alt="Logo" className="mt-10 mb-8 h-72 w-72" /> {/* Logo at the center */}
 				<div className="flex flex-row flex-wrap justify-around w-full max-w-6xl mb-8">
 					{/* Home cards */}
 					<HomeCard
-						imageSrc="/vite.svg"
+						imageSrc={docPng}
 						altText="Consultation"
 						title="Consultation"
 						to={"/Consultation"}
 					/>
 					<HomeCard
-						imageSrc="/vite.svg"
+						imageSrc={mapPng}
 						altText="Locate Laboratory"
 						title="Locate Laboratory"
 						to={"/map"}
 						// to={"/about"}
 					/>
 					<HomeCard
-						imageSrc="/vite.svg"
+						imageSrc={uploaldPng}
 						altText="Upload Document"
 						title="Upload Document"
 						to={"/ocr"}
