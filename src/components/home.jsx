@@ -41,7 +41,7 @@ const Home = () => {
 				)}
 			</div>
 			<div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-				<img src="/logo.png" alt="Logo" className="mt-10 mb-8 h-72 w-72" /> {/* Logo at the center */}
+				<img src="/logo.png" alt="Logo" className="mt-10 mb-8 h-72 w-80" /> {/* Logo at the center */}
 				<div className="flex flex-row flex-wrap justify-around w-full max-w-6xl mb-8">
 					{/* Home cards */}
 					<HomeCard

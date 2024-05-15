@@ -61,17 +61,19 @@ const ImageUploader = () => {
 	};
 
 	return (
-		<>
-			<div className='bg-gray-100'>
+		<div className="bg-gray-100 h-screen overflow-hidden">
+			<div className='bg-gray-100 '>
 				<NavBar />
-				<div className="container mx-auto my-12 p-8 max-w-md bg-gray-100 rounded-lg shadow-2xl mt-16">
+				<div className="container mx-auto p-8 max-w-md bg-gray-100 rounded-lg text-[#291f82] mt-16">
 					{/* Choose Image Section */}
 					<label className="block text-gray-700 text-sm font-bold bg-gray-100 mb-2">Choose an Image:</label>
 					<input
 						type="file"
 						accept="image/*"
 						onChange={handleImageUpload}
+						className="appearance-none border border-gray-300 rounded py-2 px-4 block w-full leading-normal focus:outline-none focus:border-blue-500"
 					/>
+
 					{selectedImage && (
 						<div className="mt-4">
 							<img
@@ -111,8 +113,9 @@ const ImageUploader = () => {
 						</div>
 					))}
 				</div>
+				<div className="bg-gray-100 h-full"></div>
 			</div>
-		</>
+		</div>
 
 
 	);
