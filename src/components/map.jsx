@@ -1,99 +1,144 @@
-import 'leaflet/dist/leaflet.css';
+import { DirectionsRenderer, GoogleMap, InfoWindow, LoadScript, Marker } from '@react-google-maps/api';
 import React, { useEffect, useState } from 'react';
-import { MapContainer, Marker, Polyline, Popup, TileLayer } from 'react-leaflet';
-import { useNavigate } from 'react-router-dom';
-import NavBar from './topNav';
-// import { toast } from 'react-toastify';
 
-const MapExample = () => {
-	const [locations, setLocations] = useState([
-		{ id: 1, name: 'Clock Tower Faisalabad', lat: 31.4181, long: 73.0776 },
-		{ id: 2, name: 'University of Agriculture, Faisalabad', lat: 31.4338, long: 73.0832 },
-	]);
-	const [filteredLocations, setFilteredLocations] = useState(locations);
-	const [searchQuery, setSearchQuery] = useState('');
-	const [selectedLocation, setSelectedLocation] = useState(null);
+const containerStyle = {
+	width: '800px',
+	height: '600px'
+};
+
+const MapComponent = () => {
 	const [currentLocation, setCurrentLocation] = useState(null);
-	const navigate = useNavigate();
+	const [places, setPlaces] = useState([]);
+	const [selectedPlace, setSelectedPlace] = useState(null);
+	const [directions, setDirections] = useState(null);
 
 	useEffect(() => {
-		navigator.geolocation.getCurrentPosition(
-			(position) => {
-				setCurrentLocation({ lat: position.coords.latitude, long: position.coords.longitude });
-			},
-			() => {
-				// toast.error('Unable to fetch your location');
-				alert('Unable to fetch your location');
-			}
-		);
+		// Get user's current location
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(
+				position => {
+					const { latitude, longitude } = position.coords;
+					setCurrentLocation({ lat: latitude, lng: longitude });
+				},
+				error => {
+					console.error('Error getting user location:', error);
+				}
+			);
+		} else {
+			console.error('Geolocation is not supported by this browser.');
+		}
 	}, []);
 
-	const handleLocationSelect = location => {
-		setSelectedLocation(location);
+	const handleMapLoad = (map) => {
+		if (currentLocation) {
+			const request = {
+				location: currentLocation,
+				radius: '5000', // 5km radius
+				type: ['laboratory']
+			};
+
+			const service = new window.google.maps.places.PlacesService(map);
+
+			service.nearbySearch(request, (results, status) => {
+				if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+					setPlaces(results);
+				} else {
+					console.error('Places request failed due to ' + status);
+				}
+			});
+		}
 	};
 
-	const resetSelection = () => {
-		setSelectedLocation(null);
-	};
+	const handleDirections = () => {
+		if (currentLocation && selectedPlace) {
+			const directionsService = new window.google.maps.DirectionsService();
 
-	const handleSearchChange = (e) => {
-		const query = e.target.value.toLowerCase();
-		setSearchQuery(query);
-		setFilteredLocations(locations.filter(loc => loc.name.toLowerCase().includes(query)));
+			directionsService.route(
+				{
+					origin: currentLocation,
+					destination: selectedPlace.geometry.location,
+					travelMode: window.google.maps.TravelMode.DRIVING
+				},
+				(result, status) => {
+					if (status === window.google.maps.DirectionsStatus.OK) {
+						setDirections(result);
+					} else {
+						console.error('Directions request failed due to ' + status);
+					}
+				}
+			);
+		}
 	};
 
 	return (
-		<div className='bg-gray-100'>
-			<NavBar />
-			<div className="flex flex-col items-center w-full h-screen pt-20">
-				<div className="w-11/12 max-w-screen-xl">
-					{!selectedLocation && (
-						<input
-							type="text"
-							placeholder="Search location..."
-							value={searchQuery}
-							onChange={handleSearchChange}
-							className="w-full p-3 mb-4 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-[#291f82] focus:border-transparent"
+		<div className='bg-gray-100 h-screen pt-10 pl-48'>
+
+			<LoadScript googleMapsApiKey='AIzaSyB9irjntPHdEJf024h7H_XKpS11OeW1Nh8&libraries' libraries={['places']}>
+				{currentLocation && (
+					<GoogleMap
+						mapContainerStyle={containerStyle}
+						center={currentLocation}
+						zoom={13}
+						onLoad={handleMapLoad}
+					>
+						<Marker
+							position={currentLocation}
+							icon={{
+								url: 'http://maps.google.com/mapfiles/ms/icons/purple-dot.png',
+								labelOrigin: new window.google.maps.Point(15, 10),
+								scaledSize: new window.google.maps.Size(32, 32),
+							}}
+							label={{
+								text: 'You are here',
+								color: 'green',
+								fontWeight: 'bold'
+							}}
+							cursor="pointer"
 						/>
-					)}
-					{!selectedLocation && (
-						<ul className="list-none space-y-2 mt-4">
-							{filteredLocations.map((loc) => (
-								<li
-									key={loc.id}
-									onClick={() => handleLocationSelect(loc)}
-									className="cursor-pointer bg-[#291f82] hover:bg-[#0b0638] text-white py-5 px-4 rounded-xl w-full text-center"
+
+						{places.map(place => (
+							<Marker
+								key={place.place_id}
+								position={place.geometry.location}
+								title={place.name}
+								onClick={() => {
+									setSelectedPlace(place);
+									setDirections(null); // Clear previous directions
+								}}
+							/>
+						))}
+
+						{selectedPlace && (
+							<>
+								<InfoWindow
+									position={selectedPlace.geometry.location}
+									onCloseClick={() => setSelectedPlace(null)}
 								>
-									{loc.name} - Lat: {loc.lat}, Long: {loc.long}
-								</li>
-							))}
-						</ul>
-					)}
-				</div>
-				{selectedLocation && currentLocation && (
-					<div className="map-container mt-4 w-11/12 max-w-screen-xl" style={{ height: '500px', border: '2px solid #000' }}>
-						<MapContainer center={[currentLocation.lat, currentLocation.long]} zoom={13} style={{ height: '100%', width: '100%' }}>
-							<TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-							<Marker position={[currentLocation.lat, currentLocation.long]}>
-								<Popup>Your Location</Popup>
-							</Marker>
-							<Marker position={[selectedLocation.lat, selectedLocation.long]}>
-								<Popup>{selectedLocation.name}</Popup>
-							</Marker>
-							<Polyline positions={[[currentLocation.lat, currentLocation.long], [selectedLocation.lat, selectedLocation.long]]} color="red" />
-						</MapContainer>
-					</div>
+									<div>
+										<h2>{selectedPlace.name}</h2>
+										<p>{selectedPlace.vicinity}</p>
+										<button onClick={handleDirections} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+											Get Directions
+										</button>
+									</div>
+								</InfoWindow>
+
+								{directions && (
+									<DirectionsRenderer
+										directions={directions}
+										options={{
+											suppressMarkers: true,
+											polylineOptions: { strokeColor: 'red' } // Set path color to red
+										}}
+									/>
+								)}
+							</>
+						)}
+					</GoogleMap>
 				)}
-				{selectedLocation && (
-					<button onClick={resetSelection} className="mb-4 mt-6 bg-[#291f82] hover:bg-[#0b0638] text-white py-2 px-4 rounded-lg">
-						Back to List
-					</button>
-				)}
-			</div>
+			</LoadScript>
 		</div>
 	);
-
-
 };
 
-export default MapExample;
+export default MapComponent;
