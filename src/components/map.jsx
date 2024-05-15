@@ -1,9 +1,10 @@
 import { DirectionsRenderer, GoogleMap, InfoWindow, LoadScript, Marker } from '@react-google-maps/api';
 import React, { useEffect, useState } from 'react';
+import NavBar from './topNav';
 
 const containerStyle = {
-	width: '800px',
-	height: '600px'
+	width: '1000px',
+	height: '550px'
 };
 
 const MapComponent = () => {
@@ -71,8 +72,8 @@ const MapComponent = () => {
 	};
 
 	return (
-		<div className='bg-gray-100 h-screen pt-10 pl-48'>
-
+		<div className='bg-gray-100 h-screen pt-16  pl-48'>
+			<NavBar />
 			<LoadScript googleMapsApiKey='AIzaSyB9irjntPHdEJf024h7H_XKpS11OeW1Nh8&libraries' libraries={['places']}>
 				{currentLocation && (
 					<GoogleMap
