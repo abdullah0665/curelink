@@ -10,6 +10,8 @@ const MapExample = () => {
 		{ id: 1, name: 'Clock Tower Faisalabad', lat: 31.4181, long: 73.0776 },
 		{ id: 2, name: 'University of Agriculture, Faisalabad', lat: 31.4338, long: 73.0832 },
 	]);
+	const [filteredLocations, setFilteredLocations] = useState(locations);
+	const [searchQuery, setSearchQuery] = useState('');
 	const [selectedLocation, setSelectedLocation] = useState(null);
 	const [currentLocation, setCurrentLocation] = useState(null);
 	const navigate = useNavigate();
@@ -20,7 +22,8 @@ const MapExample = () => {
 				setCurrentLocation({ lat: position.coords.latitude, long: position.coords.longitude });
 			},
 			() => {
-				toast.error('Unable to fetch your location');
+				// toast.error('Unable to fetch your location');
+				alert('Unable to fetch your location');
 			}
 		);
 	}, []);
@@ -33,17 +36,32 @@ const MapExample = () => {
 		setSelectedLocation(null);
 	};
 
+	const handleSearchChange = (e) => {
+		const query = e.target.value.toLowerCase();
+		setSearchQuery(query);
+		setFilteredLocations(locations.filter(loc => loc.name.toLowerCase().includes(query)));
+	};
+
 	return (
 		<div className='bg-gray-100'>
 			<NavBar />
-			<div className="flex flex-col items-center  w-full h-screen pt-20 ">
+			<div className="flex flex-col items-center w-full h-screen pt-20">
 				<div className="w-11/12 max-w-screen-xl">
+					{!selectedLocation && (
+						<input
+							type="text"
+							placeholder="Search location..."
+							value={searchQuery}
+							onChange={handleSearchChange}
+							className="w-full p-3 mb-4 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-[#291f82] focus:border-transparent"
+						/>
+					)}
 					{selectedLocation ? (
 						// If a location is selected, don't render the list
 						null
 					) : (
 						<ul className="list-none space-y-2 mt-4">
-							{locations.map((loc) => (
+							{filteredLocations.map((loc) => (
 								<li
 									key={loc.id}
 									onClick={() => handleLocationSelect(loc)}
@@ -83,12 +101,6 @@ const MapExample = () => {
 					</div>
 				)}
 
-				{/* <button
-					onClick={() => navigate('/home')}
-					className="bg-[#291f82] hover:bg-[#0b0638] text-white font-bold py-2 px-4 rounded mt-4"
-				>
-					Return To Home
-				</button> */}
 			</div>
 		</div>
 	);
