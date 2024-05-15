@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, signInWithGoogle } from '../firebase'; // Adjust the import path as needed
 import HomeCard from './HomeCard';
+import NavBar from './topNav';
 
 const Home = () => {
 	const [user, setUser] = useState(null);
@@ -24,10 +25,11 @@ const Home = () => {
 	};
 	return (
 		<>
+		<NavBar/>
 			<div className="fixed top-0 right-0 m-4">
 				{user && (
 					<button
-						className="text-[#291f82] hover:text-[#0b0638]"
+						className="text-[#291f82] hover:text-[#0b0638] text-xl mt-2 font-semibold"
 						onClick={handleLogout}
 					>
 						{user.email}
@@ -41,22 +43,22 @@ const Home = () => {
 					<HomeCard
 						imageSrc="/vite.svg"
 						altText="Consultation"
-						title="Consult"
-						to={"/about"}
+						title="Consultation"
+						to={"/Consultation"}
 					/>
 					<HomeCard
 						imageSrc="/vite.svg"
 						altText="Locate Laboratory"
 						title="Locate Laboratory"
-						// to={"/map"}
-						to={"/about"}
+						to={"/map"}
+						// to={"/about"}
 					/>
 					<HomeCard
 						imageSrc="/vite.svg"
 						altText="Upload Document"
 						title="Upload Document"
-						// to={"/ocr"}
-						to={"/about"}
+						to={"/ocr"}
+						// to={"/about"}
 					/>
 				</div>
 			</div>

@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 const MapExample = () => {
 	const [locations, setLocations] = useState([
 		{ id: 1, name: 'Clock Tower Faisalabad', lat: 31.4181, long: 73.0776 },
-		{ id: 2, name: 'University of Agriculture, Faisalabad', lat: 31.4338, long: 73.0832 }
+		{ id: 2, name: 'University of Agriculture, Faisalabad', lat: 31.4338, long: 73.0832 },
 	]);
 	const [selectedLocation, setSelectedLocation] = useState(null);
 	const [currentLocation, setCurrentLocation] = useState(null);
