@@ -9,7 +9,7 @@ const NavBar = () => {
 				{/* Navigation Links */}
 				<div className="flex space-x-10">
 					<Link
-						to="/"
+						to="/home"
 						className="py-2 font-semibold  hover:rounded hover:px-4 transition-all duration-300"
 					>
 						HOME

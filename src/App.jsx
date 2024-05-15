@@ -8,6 +8,7 @@ import OCR from './components/OCR'
 import ImageUploader from './components/imageUpload'
 import Login from './components/login'
 import Signup from './components/signup'
+import Contact from './components/contact'
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/signup" element={< Signup />} />
         <Route path="/home" element={< Home />} />
         <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/map" element={<MapExample />} />
         <Route path="/ocr" element={<ImageUploader />} />
       </Routes>
