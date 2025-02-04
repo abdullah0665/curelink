@@ -128,14 +128,13 @@ const Indeed = () => {
         writeFile(workbook, "filtered_jobs.xlsx");
         alert("Excel file downloaded successfully!");
     };
-
     // Function to add a keyword
     const addKeyword = () => {
         const trimmedKeyword = keywordInput.trim();
         if (trimmedKeyword) {
             if (selectedKeywords.includes(trimmedKeyword)) {
                 // Show toast if keyword already exists
-                toast.error((`Keyword already exist`), {
+                toast.error("Keyword already exists!", {
                     position: "top-right",
                     autoClose: 5000,
                     hideProgressBar: false,
@@ -147,20 +146,20 @@ const Indeed = () => {
                 });
             } else {
                 // Add keyword if it's not already in the list
-                setSelectedKeywords([...selectedKeywords, trimmedKeyword]);
-                const updatedKeywords = [...selectedKeywords, trimmedKeyword].join('|');
-                keywordData(updatedKeywords);
-                setKeywordInput("");
+                const updatedKeywords = [...selectedKeywords, trimmedKeyword];
+                setSelectedKeywords(updatedKeywords); // Update state with new keyword
+                const keywordsString = updatedKeywords.join("|"); // Join array into a string
+                keywordData(keywordsString); // Call your API with the updated keyword string
+                setKeywordInput(""); // Clear input field
             }
         }
     };
-
 
     // Function to render keywords as capsules
     const renderKeywords = () => {
         const sortedKeywords = [...selectedKeywords].sort();
 
-        return sortedKeywords.map((keyword, index) => (
+        return selectedKeywords.map((keyword, index) => (
             <div
                 key={index}
                 className="inline-flex items-center px-3 py-1 m-1 bg-[#517028] text-white rounded-full text-sm"
@@ -172,30 +171,34 @@ const Indeed = () => {
                 >
                     <FontAwesomeIcon icon={faClose} />
                 </button>
-
             </div>
         ));
     };
+
     // Function to remove a keyword
     const removeKeyword = (index) => {
         const updatedKeywords = selectedKeywords.filter((_, i) => i !== index);
         setSelectedKeywords(updatedKeywords);
+        const keywordsString = updatedKeywords.join("|"); // Re-join the updated list
+        keywordData(keywordsString); // Call your API with the updated keyword string
     };
 
+    // Fetch data on component mount
     useEffect(() => {
-        const getdata = async () => {
+        const getData = async () => {
             let response = await getIndeedData();
             setIndeed_Data(response);
         };
+
         const getKeywords = async () => {
             let responseData = await GetKeywords();
-            // setSelectedKeywords(resposeData.keywords.split('|'));
-            console.log('keywords from db', responseData[0].key_words);
-            const keywordsArray = responseData[0].key_words.split('|');
-            console.log('Keywords as array:', keywordsArray);
+            console.log("keywords from db", responseData[0].key_words);
+            const keywordsArray = responseData[0].key_words.split("|");
+            console.log("Keywords as array:", keywordsArray);
             setSelectedKeywords(keywordsArray);
-        }
-        getdata();
+        };
+
+        getData();
         getKeywords();
     }, []);
 
