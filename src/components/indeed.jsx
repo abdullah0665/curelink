@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { getIndeedData, keywordData, GetKeywords, IndeedScraper } from "../api/api";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faSync, faDownload, faPlus, faClose } from "@fortawesome/free-solid-svg-icons";
+import { faEye, faSync, faDownload, faPlus, faClose, faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
 import { writeFile, utils } from "xlsx"; // For Excel download
 import { faEdit } from "@fortawesome/free-solid-svg-icons/faEdit";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 // import { createObjectCsvWriter } from "csv-writer"; // For CSV download
 
@@ -19,6 +21,8 @@ const Indeed = () => {
     const [selectedKeywords, setSelectedKeywords] = useState([]); // State for selected keywords
     const [showKeywordModal, setShowKeywordModal] = useState(false); // State for controlling the keyword modal
     const [keywordInput, setKeywordInput] = useState(""); // State for keyword input
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
 
 
     // Function to open the modal with job details
@@ -54,43 +58,27 @@ const Indeed = () => {
 
     // Filter jobs based on the date posted and keywords
     const filterJobs = (jobs) => {
-        const currentDate = new Date();
         let filteredJobs = jobs;
 
-        // Filter by date
-        switch (dateFilter) {
-            case "7":
-                filteredJobs = filteredJobs.filter((job) => {
-                    const jobDate = new Date(job.date_posted);
-                    const diffTime = currentDate - jobDate;
-                    const diffDays = diffTime / (1000 * 60 * 60 * 24);
-                    return diffDays <= 7;
-                });
-                break;
-            case "30":
-                filteredJobs = filteredJobs.filter((job) => {
-                    const jobDate = new Date(job.date_posted);
-                    const diffTime = currentDate - jobDate;
-                    const diffDays = diffTime / (1000 * 60 * 60 * 24);
-                    return diffDays <= 30;
-                });
-                break;
-            default:
-                break;
+        // Filter by date range
+        if (startDate && endDate) {
+            filteredJobs = filteredJobs.filter((job) => {
+                const jobDate = new Date(job.date_posted);
+                return jobDate >= startDate && jobDate <= endDate;
+            });
         }
 
         // Filter by keywords
         if (keywordFilter) {
             filteredJobs = filteredJobs.filter((job) =>
-                job.title?.toLowerCase().includes(keywordFilter?.toLowerCase()) ||
-                job.company?.toLowerCase().includes(keywordFilter?.toLowerCase()) ||
-                job.keywords?.toLowerCase().includes(keywordFilter?.toLowerCase())
+                job.title?.toLowerCase().includes(keywordFilter.toLowerCase()) ||
+                job.company?.toLowerCase().includes(keywordFilter.toLowerCase()) ||
+                job.keywords?.toLowerCase().includes(keywordFilter.toLowerCase())
             );
         }
 
         return filteredJobs;
     };
-
     // Apply filters to the data
     const filteredData = filterJobs(indeed_data);
 
@@ -222,29 +210,45 @@ const Indeed = () => {
             {/* Filter and Refresh Container */}
             <div className="mb-4 flex items-center space-x-4">
                 {/* Date Filter Dropdown */}
-                <div className="flex items-center space-x-2">
-                    <label htmlFor="dateFilter" className="text-sm">Filter by Date: </label>
-                    <select
-                        id="dateFilter"
-                        value={dateFilter}
-                        onChange={(e) => setDateFilter(e.target.value)}
-                        className="px-2 py-1 border border-[#517028] rounded-lg text-sm"
-                    >
-                        <option value="all">All</option>
-                        <option value="7">Last 7 Days</option>
-                        <option value="30">Last 30 Days</option>
-                    </select>
+
+                <div className="flex space-x-4 mb-4 relative z-50">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Start Date</label>
+                        <DatePicker
+                            selected={startDate}
+                            onChange={(date) => setStartDate(date)}
+                            selectsStart
+                            startDate={startDate}
+                            endDate={endDate}
+                            className="border border-gray-300 px-3 py-2 rounded-lg w-full"
+                            placeholderText="Select start date"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">End Date</label>
+                        <DatePicker
+                            selected={endDate}
+                            onChange={(date) => setEndDate(date)}
+                            selectsEnd
+                            startDate={startDate}
+                            endDate={endDate}
+                            minDate={startDate}
+                            className="border border-gray-300 px-3 py-2 rounded-lg w-full"
+                            placeholderText="Select end date"
+
+                        />
+                    </div>
                 </div>
 
                 {/* Keyword Search Input */}
                 <div className="flex items-center space-x-2">
-                    <label htmlFor="keywordFilter" className="text-sm">Search Keywords:</label>
+                    {/* <label htmlFor="keywordFilter" className="text-sm">Search Keywords:</label> */}
                     <input
                         id="keywordFilter"
                         type="text"
                         value={keywordFilter}
                         onChange={(e) => setKeywordFilter(e.target.value)}
-                        placeholder="Enter keywords"
+                        placeholder="Enter keywords to search"
                         className="px-2 py-1 border border-[#517028] rounded-lg text-sm"
                     />
                 </div>
