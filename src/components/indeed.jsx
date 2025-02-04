@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getIndeedData } from "../api/api";
+import { getIndeedData, keywordData, GetKeywords } from "../api/api";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faSync, faDownload, faPlus, faClose } from "@fortawesome/free-solid-svg-icons";
 import { writeFile, utils } from "xlsx"; // For Excel download
@@ -20,13 +20,6 @@ const Indeed = () => {
     const [showKeywordModal, setShowKeywordModal] = useState(false); // State for controlling the keyword modal
     const [keywordInput, setKeywordInput] = useState(""); // State for keyword input
 
-    useEffect(() => {
-        const getdata = async () => {
-            let response = await getIndeedData();
-            setIndeed_Data(response);
-        };
-        getdata();
-    }, []);
 
     // Function to open the modal with job details
     const openModal = (job) => {
@@ -152,18 +145,14 @@ const Indeed = () => {
                     progress: undefined,
                     theme: "light",
                 });
-                console.log("key word")
             } else {
                 // Add keyword if it's not already in the list
                 setSelectedKeywords([...selectedKeywords, trimmedKeyword]);
+                const updatedKeywords = [...selectedKeywords, trimmedKeyword].join('|');
+                keywordData(updatedKeywords);
                 setKeywordInput("");
             }
         }
-    };
-    // Function to remove a keyword
-    const removeKeyword = (index) => {
-        const updatedKeywords = selectedKeywords.filter((_, i) => i !== index);
-        setSelectedKeywords(updatedKeywords);
     };
 
 
@@ -181,13 +170,35 @@ const Indeed = () => {
                     onClick={() => removeKeyword(index)}
                     className="ml-2 text-white hover:text-gray-200"
                 >
-                    <FontAwesomeIcon icon={faClose}/>
+                    <FontAwesomeIcon icon={faClose} />
                 </button>
-               
+
             </div>
         ));
     };
-    console.log(indeed_data);
+    // Function to remove a keyword
+    const removeKeyword = (index) => {
+        const updatedKeywords = selectedKeywords.filter((_, i) => i !== index);
+        setSelectedKeywords(updatedKeywords);
+    };
+
+    useEffect(() => {
+        const getdata = async () => {
+            let response = await getIndeedData();
+            setIndeed_Data(response);
+        };
+        const getKeywords = async () => {
+            let responseData = await GetKeywords();
+            // setSelectedKeywords(resposeData.keywords.split('|'));
+            console.log('keywords from db', responseData[0].key_words);
+            const keywordsArray = responseData[0].key_words.split('|');
+            console.log('Keywords as array:', keywordsArray);
+            setSelectedKeywords(keywordsArray);
+        }
+        getdata();
+        getKeywords();
+    }, []);
+
     return (
         <div className="w-full h-screen flex flex-col items-center justify-end pb-10">
             {/* Filter and Refresh Container */}
@@ -238,7 +249,7 @@ const Indeed = () => {
                     onClick={() => setShowKeywordModal(true)}
                     className="px-2 py-1 bg-[#517028] text-white rounded-lg hover:bg-[#415a20]"
                 >
-                    <FontAwesomeIcon icon={faEdit} /> Keywords 
+                    <FontAwesomeIcon icon={faEdit} /> Keywords
                 </button>
             </div>
 
@@ -347,7 +358,7 @@ const Indeed = () => {
                         <h2 className="text-xl font-bold mb-4">{selectedJob.title}</h2>
                         <div className="space-y-2">
                             <p><strong>Company:</strong> {selectedJob.company}</p>
-                            <p><strong>Company Website:</strong> {selectedJob.company_url_direct  || "Not Provided"}</p>
+                            <p><strong>Company Website:</strong> {selectedJob.company_url_direct || "Not Provided"}</p>
                             <p><strong>Company employees:</strong> {selectedJob.company_num_employees || "Not Provided"}</p>
                             <p><strong>Location:</strong> {selectedJob.location}</p>
                             <p><strong>Salary:</strong> {selectedJob.min_amount && selectedJob.max_amount
@@ -421,7 +432,7 @@ const Indeed = () => {
             )}
 
 
-            
+
             <ToastContainer /> {/* Toast container to display toasts */}
         </div>
     );

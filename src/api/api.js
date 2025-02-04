@@ -81,3 +81,23 @@ export const keywordData = async (keyword) => {
         return null;
     }
 };
+export const GetKeywords = async () => {
+    try {
+        const res = await fetch(`https://angi.weteck.co/keywords_data`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Cache-Control": "no-cache, no-store, must-revalidate",
+            },
+        });
+
+        if (!res.ok) {
+            throw new Error(`HTTP Error: ${res.status} - ${res.statusText}`);
+        }
+
+        return await res.json();
+    } catch (error) {
+        console.error("Fetch error (getAngiData):", error.message);
+        return null;
+    }
+};
