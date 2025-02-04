@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { getIndeedData } from "../api/api";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faExternalLinkAlt, faEye, faSync, faDownload } from "@fortawesome/free-solid-svg-icons";
+import { faEye, faSync, faDownload, faPlus, faClose } from "@fortawesome/free-solid-svg-icons";
 import { writeFile, utils } from "xlsx"; // For Excel download
+import { faEdit } from "@fortawesome/free-solid-svg-icons/faEdit";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 // import { createObjectCsvWriter } from "csv-writer"; // For CSV download
 
 const Indeed = () => {
@@ -12,6 +16,9 @@ const Indeed = () => {
     const [itemsPerPage] = useState(10);
     const [dateFilter, setDateFilter] = useState("all");
     const [keywordFilter, setKeywordFilter] = useState("");
+    const [selectedKeywords, setSelectedKeywords] = useState([]); // State for selected keywords
+    const [showKeywordModal, setShowKeywordModal] = useState(false); // State for controlling the keyword modal
+    const [keywordInput, setKeywordInput] = useState(""); // State for keyword input
 
     useEffect(() => {
         const getdata = async () => {
@@ -128,6 +135,58 @@ const Indeed = () => {
         writeFile(workbook, "filtered_jobs.xlsx");
         alert("Excel file downloaded successfully!");
     };
+
+    // Function to add a keyword
+    const addKeyword = () => {
+        const trimmedKeyword = keywordInput.trim();
+        if (trimmedKeyword) {
+            if (selectedKeywords.includes(trimmedKeyword)) {
+                // Show toast if keyword already exists
+                toast.error((`Keyword already exist`), {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                });
+                console.log("key word")
+            } else {
+                // Add keyword if it's not already in the list
+                setSelectedKeywords([...selectedKeywords, trimmedKeyword]);
+                setKeywordInput("");
+            }
+        }
+    };
+    // Function to remove a keyword
+    const removeKeyword = (index) => {
+        const updatedKeywords = selectedKeywords.filter((_, i) => i !== index);
+        setSelectedKeywords(updatedKeywords);
+    };
+
+
+    // Function to render keywords as capsules
+    const renderKeywords = () => {
+        const sortedKeywords = [...selectedKeywords].sort();
+
+        return sortedKeywords.map((keyword, index) => (
+            <div
+                key={index}
+                className="inline-flex items-center px-3 py-1 m-1 bg-[#517028] text-white rounded-full text-sm"
+            >
+                {keyword}
+                <button
+                    onClick={() => removeKeyword(index)}
+                    className="ml-2 text-white hover:text-gray-200"
+                >
+                    <FontAwesomeIcon icon={faClose}/>
+                </button>
+               
+            </div>
+        ));
+    };
     console.log(indeed_data);
     return (
         <div className="w-full h-screen flex flex-col items-center justify-end pb-10">
@@ -135,7 +194,7 @@ const Indeed = () => {
             <div className="mb-4 flex items-center space-x-4">
                 {/* Date Filter Dropdown */}
                 <div className="flex items-center space-x-2">
-                    <label htmlFor="dateFilter" className="text-sm">Filter by Date:</label>
+                    <label htmlFor="dateFilter" className="text-sm">Filter by Date: </label>
                     <select
                         id="dateFilter"
                         value={dateFilter}
@@ -174,6 +233,12 @@ const Indeed = () => {
                     className="px-2 py-1 bg-[#517028] text-white rounded-lg hover:bg-[#415a20]"
                 >
                     <FontAwesomeIcon icon={faDownload} /> Excel
+                </button>
+                <button
+                    onClick={() => setShowKeywordModal(true)}
+                    className="px-2 py-1 bg-[#517028] text-white rounded-lg hover:bg-[#415a20]"
+                >
+                    <FontAwesomeIcon icon={faEdit} /> Keywords 
                 </button>
             </div>
 
@@ -322,6 +387,42 @@ const Indeed = () => {
                     </div>
                 </div>
             )}
+            {/* Modal for Viewing and Editing Keywords */}
+            {showKeywordModal && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <div className="bg-white p-6 rounded-lg w-11/12 max-w-2xl relative">
+                        {/* Close button moved to the top-right corner */}
+                        <button
+                            onClick={() => setShowKeywordModal(false)}
+                            className="absolute top-4 right-4 text-red-500 hover:text-red-700 text-xl"
+                        >
+                            <FontAwesomeIcon icon={faClose} />
+                        </button>
+
+                        <h2 className="text-xl font-bold mb-4 text-center">Add Keywords</h2>
+                        <div className="mb-4">{renderKeywords()}</div>
+                        <div className="flex items-center space-x-2 mb-4">
+                            <input
+                                type="text"
+                                value={keywordInput}
+                                onChange={(e) => setKeywordInput(e.target.value)}
+                                className="w-3/4 px-3 py-2 border border-gray-300 rounded-lg"
+                                placeholder="Enter keyword"
+                            />
+                            <button
+                                onClick={addKeyword}
+                                className="bg-[#517028] text-white p-2 rounded-lg hover:bg-[#415a20] flex items-center justify-center"
+                            >
+                                <FontAwesomeIcon icon={faPlus} />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+
+            
+            <ToastContainer /> {/* Toast container to display toasts */}
         </div>
     );
 };
