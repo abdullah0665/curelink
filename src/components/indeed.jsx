@@ -101,6 +101,14 @@ const Indeed = () => {
         const formattedData = filteredData.map(row => ({
             "Job Title": row.title,
             "Company": row.company,
+            "Company Website": row.company_url_direct || "Not Provided",
+            "Company employees": row.company_num_employees || "Not Provided",
+            "Company Revenue": row.company_revenue || "Not Provided",
+            "Job Type": row.job_type || "Not Provided",
+            "Interval": row.interval || "Not Provided",
+            "Remote Job": row.is_remote ? "Yes" : "No",
+            "Job URL": row.job_url,
+            "Job Actual URL": row.job_url_direct,
             "Location": row.location,
             "Currency": row.currency,
             "Salary": row.min_amount && row.max_amount
@@ -120,7 +128,7 @@ const Indeed = () => {
         writeFile(workbook, "filtered_jobs.xlsx");
         alert("Excel file downloaded successfully!");
     };
-
+    console.log(indeed_data);
     return (
         <div className="w-full h-screen flex flex-col items-center justify-end pb-10">
             {/* Filter and Refresh Container */}
@@ -187,36 +195,36 @@ const Indeed = () => {
                     <tbody>
                         {currentItems.map((job, index) => (
                             <React.Fragment key={job.id || index}>
-                                <tr className="text-black bg-white even:bg-gray-100">
+                                <tr className="text-black bg-white even:bg-gray-100 ">
                                     {/* Job Title */}
-                                    <td className="p-2 font-medium truncate" title={job.title}>
+                                    <td className="px-9 py-2 font-medium truncate" title={job.title}>
                                         {job.title}
                                     </td>
 
                                     {/* Company */}
-                                    <td className="p-2 truncate" title={job.company}>
+                                    <td className="px-8 py-2 truncate" title={job.company}>
                                         {job.company}
                                     </td>
 
                                     {/* Location */}
-                                    <td className="p-2 truncate" title={job.location}>
+                                    <td className="px-8 py-2 truncate" title={job.location}>
                                         {job.location}
                                     </td>
 
                                     {/* Salary */}
-                                    <td className="p-2 truncate">
+                                    <td className="px-8 py-2 truncate">
                                         {job.min_amount && job.max_amount
                                             ? `$${job.min_amount} - $${job.max_amount} ${job.currency || "USD"}`
                                             : "Not Provided"}
                                     </td>
 
                                     {/* Date Posted */}
-                                    <td className="p-2 truncate">
+                                    <td className="px-8 py-2 truncate">
                                         {new Date(job.date_posted).toLocaleDateString()}
                                     </td>
 
                                     {/* Keywords */}
-                                    <td className="p-2 truncate">
+                                    <td className="px-8 py-2 truncate">
                                         {job.keywords}
                                     </td>
 
@@ -274,6 +282,8 @@ const Indeed = () => {
                         <h2 className="text-xl font-bold mb-4">{selectedJob.title}</h2>
                         <div className="space-y-2">
                             <p><strong>Company:</strong> {selectedJob.company}</p>
+                            <p><strong>Company Website:</strong> {selectedJob.company_url_direct  || "Not Provided"}</p>
+                            <p><strong>Company employees:</strong> {selectedJob.company_num_employees || "Not Provided"}</p>
                             <p><strong>Location:</strong> {selectedJob.location}</p>
                             <p><strong>Salary:</strong> {selectedJob.min_amount && selectedJob.max_amount
                                 ? `$${selectedJob.min_amount} - $${selectedJob.max_amount} ${selectedJob.currency || "USD"}`
@@ -282,10 +292,19 @@ const Indeed = () => {
                             <p><strong>Job Type:</strong> {selectedJob.job_type || "Not Provided"}</p>
                             <p><strong>Interval:</strong> {selectedJob.interval || "Not Provided"}</p>
                             <p><strong>Remote Job:</strong> {selectedJob.is_remote ? "Yes" : "No"}</p>
-                            <p><strong>Keywords:</strong> {selectedJob.keywords || "Not Provided"}</p>
                             <p><strong>Job URL:</strong>{" "}
                                 <a
                                     href={selectedJob.job_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-[#415a20] hover:underline"
+                                >
+                                    View Job <FontAwesomeIcon icon={faExternalLinkAlt} />
+                                </a>
+                            </p>
+                            <p><strong>Job Actual URL:</strong>{" "}
+                                <a
+                                    href={selectedJob.job_url_direct}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-[#415a20] hover:underline"
