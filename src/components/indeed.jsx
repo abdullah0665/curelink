@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getIndeedData, keywordData, GetKeywords } from "../api/api";
+import { getIndeedData, keywordData, GetKeywords, IndeedScraper } from "../api/api";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faSync, faDownload, faPlus, faClose } from "@fortawesome/free-solid-svg-icons";
 import { writeFile, utils } from "xlsx"; // For Excel download
@@ -33,8 +33,23 @@ const Indeed = () => {
 
     // Function to refresh the data
     const refreshData = async () => {
-        let response = await getIndeedData();
-        setIndeed_Data(response);
+        let indeed_data = await IndeedScraper();
+        console.log("indeed_data", indeed_data);
+        toast.success(`${indeed_data.message}`, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        });
+        const getData = async () => {
+            let response = await getIndeedData();
+            setIndeed_Data(response);
+        };
+        getData();
     };
 
     // Filter jobs based on the date posted and keywords
@@ -67,9 +82,9 @@ const Indeed = () => {
         // Filter by keywords
         if (keywordFilter) {
             filteredJobs = filteredJobs.filter((job) =>
-                job.title.toLowerCase().includes(keywordFilter.toLowerCase()) ||
-                job.company.toLowerCase().includes(keywordFilter.toLowerCase()) ||
-                job.keywords?.toLowerCase().includes(keywordFilter.toLowerCase())
+                job.title?.toLowerCase().includes(keywordFilter?.toLowerCase()) ||
+                job.company?.toLowerCase().includes(keywordFilter?.toLowerCase()) ||
+                job.keywords?.toLowerCase().includes(keywordFilter?.toLowerCase())
             );
         }
 
@@ -262,13 +277,13 @@ const Indeed = () => {
                     <thead>
                         <tr>
                             {/* Headers */}
-                            <th className="sticky top-0 py-2 text-white bg-[#517028] rounded-tl-lg min-w-[80px] z-10">Job Title</th>
-                            <th className="sticky top-0 py-2 text-white bg-[#517028] min-w-[80px] z-10">Company</th>
-                            <th className="sticky top-0 py-2 text-white bg-[#517028] min-w-[80px] z-10">Location</th>
-                            <th className="sticky top-0 py-2 text-white bg-[#517028] min-w-[80px] z-10">Salary</th>
-                            <th className="sticky top-0 py-2 text-white bg-[#517028] min-w-[80px] z-10">Date Posted</th>
-                            <th className="sticky top-0 py-2 text-white bg-[#517028] min-w-[80px] z-10">Key Word</th>
-                            <th className="sticky top-0 py-2 text-white bg-[#517028] rounded-tr-lg min-w-[80px] z-10">Actions</th>
+                            <th className="sticky top-0 py-2 text-white bg-[#517028] rounded-tl-lg  max-w-20 z-10">Job Title</th>
+                            <th className="sticky top-0 py-2 text-white bg-[#517028]  max-w-20 z-10">Company</th>
+                            <th className="sticky top-0 py-2 text-white bg-[#517028]  max-w-20 z-10">Location</th>
+                            <th className="sticky top-0 py-2 text-white bg-[#517028]  max-w-20 z-10">Salary</th>
+                            <th className="sticky top-0 py-2 text-white bg-[#517028]  max-w-20 z-10">Date Posted</th>
+                            <th className="sticky top-0 py-2 text-white bg-[#517028]  max-w-20 z-10">Key Word</th>
+                            <th className="sticky top-0 py-2 text-white bg-[#517028] rounded-tr-lg  max-w-20 z-10">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -276,39 +291,39 @@ const Indeed = () => {
                             <React.Fragment key={job.id || index}>
                                 <tr className="text-black bg-white even:bg-gray-100 ">
                                     {/* Job Title */}
-                                    <td className="px-9 py-2 font-medium truncate" title={job.title}>
+                                    <td className="p-2 font-medium truncate max-w-20 text-center" title={job.title}>
                                         {job.title}
                                     </td>
 
                                     {/* Company */}
-                                    <td className="px-8 py-2 truncate" title={job.company}>
+                                    <td className="p-2 truncate max-w-20 text-center" title={job.company}>
                                         {job.company}
                                     </td>
 
                                     {/* Location */}
-                                    <td className="px-8 py-2 truncate" title={job.location}>
+                                    <td className="p-2 truncate max-w-20 text-center" title={job.location}>
                                         {job.location}
                                     </td>
 
                                     {/* Salary */}
-                                    <td className="px-8 py-2 truncate">
+                                    <td className="p-2 truncate max-w-20 text-center">
                                         {job.min_amount && job.max_amount
                                             ? `$${job.min_amount} - $${job.max_amount} ${job.currency || "USD"}`
                                             : "Not Provided"}
                                     </td>
 
                                     {/* Date Posted */}
-                                    <td className="px-8 py-2 truncate">
+                                    <td className="p-2 truncate max-w-20 text-center">
                                         {new Date(job.date_posted).toLocaleDateString()}
                                     </td>
 
                                     {/* Keywords */}
-                                    <td className="px-8 py-2 truncate">
+                                    <td className="p-2 truncate max-w-20 text-center">
                                         {job.keywords}
                                     </td>
 
                                     {/* Actions (Eye Button) */}
-                                    <td className="px-9">
+                                    <td className=" max-w-20 text-center">
                                         <button
                                             onClick={() => openModal(job)}
                                             className="text-[#415a20] hover:text-[#517028]"
@@ -335,16 +350,47 @@ const Indeed = () => {
                 >
                     Previous
                 </button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <button
-                        key={page}
-                        onClick={() => paginate(page)}
-                        className={`px-4 py-2 mx-1 ${currentPage === page ? "bg-[#415a20]" : "bg-[#517028]"
-                            } text-white rounded hover:bg-[#415a20]`}
-                    >
-                        {page}
-                    </button>
-                ))}
+
+                {/* Page numbers with dynamic range */}
+                {currentPage > 3 && (
+                    <>
+                        <button
+                            onClick={() => paginate(1)}
+                            className="px-4 py-2 mx-1 bg-[#517028] text-white rounded hover:bg-[#415a20]"
+                        >
+                            1
+                        </button>
+                        <span className="mx-1">...</span>
+                    </>
+                )}
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(
+                        (page) =>
+                            page <= currentPage + 2 && page >= currentPage - 2 && page > 0 && page <= totalPages
+                    )
+                    .map((page) => (
+                        <button
+                            key={page}
+                            onClick={() => paginate(page)}
+                            className={`px-4 py-2 mx-1 ${currentPage === page ? "bg-[#415a20]" : "bg-[#517028]"} text-white rounded hover:bg-[#415a20]`}
+                        >
+                            {page}
+                        </button>
+                    ))}
+
+                {currentPage < totalPages - 2 && (
+                    <>
+                        <span className="mx-1">...</span>
+                        <button
+                            onClick={() => paginate(totalPages)}
+                            className="px-4 py-2 mx-1 bg-[#517028] text-white rounded hover:bg-[#415a20]"
+                        >
+                            {totalPages}
+                        </button>
+                    </>
+                )}
+
                 <button
                     onClick={() => paginate(currentPage + 1)}
                     disabled={currentPage === totalPages}
