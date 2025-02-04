@@ -83,15 +83,13 @@ const Indeed = () => {
             });
         }
 
-        // Filter by keywords
-        if (keywordFilter) {
-            filteredJobs = filteredJobs.filter(
-                (job) =>
-                    // job.title?.toLowerCase().includes(keywordFilter.toLowerCase()) ||
-                    // job.company?.toLowerCase().includes(keywordFilter.toLowerCase()) ||
-                    (job.keywords && job.keywords.toLowerCase().includes(keywordFilter.toLowerCase()))
+        if (selectedKeywords.length > 0) {
+            filteredJobs = filteredJobs.filter((job) =>
+                (job.keywords && job.keywords.toLowerCase().includes(keywordFilter.toLowerCase()))
             );
         }
+        // Reset to page 1 after filter
+        // setCurrentPage(1);
 
         return filteredJobs;
     };
@@ -239,6 +237,10 @@ const Indeed = () => {
         getData();
         getKeywords();
     }, []);
+    // Apply filter when dateRange or keywords change
+    useEffect(() => {
+        setCurrentPage(1); // Reset page number to 1 when filters change
+    }, [dateRange, selectedKeywords, keywordFilter]);
 
     return (
         <div className="w-full h-screen flex flex-col items-center justify-end pb-10">
@@ -281,17 +283,25 @@ const Indeed = () => {
                     </div>
                 </div>
 
-                {/* Keyword Search Input */}
-                <div className="flex items-center space-x-6">
-                    {/* <label htmlFor="keywordFilter" className="text-sm">Search Keywords:</label> */}
-                    <input
-                        id="keywordFilter"
-                        type="text"
-                        value={keywordFilter}
-                        onChange={(e) => setKeywordFilter(e.target.value)}
-                        placeholder="Enter keywords to search"
-                        className="px-2 py-2.5 border border-[#517028] rounded-lg text-sm font-normal"
-                    />
+                {/* Keyword Filter Dropdown */}
+                <div className="flex flex-col space-y-4">
+                    {/* Keyword Filter Dropdown */}
+                    <div>
+
+                        <select
+                            value={keywordFilter}
+                            onChange={(e) => setKeywordFilter(e.target.value)}
+                            className="border border-gray-300 px-3 py-2 rounded-lg w-full bg-white text-gray-900"
+                        >
+                            <option value="">Select a Keyword</option>
+                            {selectedKeywords.map((keyword, index) => (
+                                <option key={index} value={keyword}>
+                                    {keyword}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
                 </div>
 
                 {/* Refresh Button */}
